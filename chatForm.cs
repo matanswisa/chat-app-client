@@ -15,9 +15,8 @@ namespace ChatApp
 {
     public partial class chatForm : Form
     {
-        Socket soc;
-        IPAddress ipAdd;
-        IPEndPoint remoteEP;
+        Client client;
+        private string msgFromServer;
 
         public chatForm()
         {
@@ -26,9 +25,7 @@ namespace ChatApp
 
         private void ChatForm_Load(object sender, EventArgs e)
         {
- 
-;
-          //  server.Connect(ipep);
+
         }
 
         private void LunchBtn_Click(object sender, EventArgs e)
@@ -45,8 +42,10 @@ namespace ChatApp
             {
                 // כאן יתאפשר ההתחברות לשרת
                 ConnectToChat();
+                client = new Client(name, 8080);
             }
         }
+
         private void ConnectToChat()
         {
             // קוראים לפעולה הזו מתי שמתחברים לצ'אט
@@ -71,6 +70,7 @@ namespace ChatApp
             txtbxChat.Enabled = false;
             txbName.Enabled = true;
             txbName.Text = "";
+            client.Exit();
         }
 
         private void BtnSendingMsg_Click(object sender, EventArgs e)
@@ -81,8 +81,12 @@ namespace ChatApp
             {
                 txbName.Focus();
                 errorProvider1.SetError(txbName, "לא הוכנס תוכן להודעה");
-            } else 
-            listMessage.Items.Add(txbName.Text + " >> " + txtbxChat.Text);
+            } else
+            {
+                listMessage.Items.Add(txbName.Text + " >> " + txtbxChat.Text);
+                client.RequestLoop(txtbxChat.Text);
+            }
+
         }
 
   
@@ -130,6 +134,24 @@ namespace ChatApp
             btnSelectFile.Enabled = false;
         }
 
+        async void func()
+        {
+            while (true)
+            {  
+                 int n =  getLastMsgFromServer();    
+            }
+        }
+        public int getLastMsgFromServer()
+        {
+            if (client.getLastMsgFromServer() != string.Empty)
+            {
+                this.msgFromServer = client.getLastMsgFromServer();
+                listMessage.Items.Add(this.msgFromServer);
+                return 1;
+            }
+            return 0;
+        }
+
         private void BtnSelectFile_Click(object sender, EventArgs e)
         {
             // מתודה זו תהיה אחראית על העלאת קבצים ושיתופם לשרת
@@ -147,4 +169,138 @@ namespace ChatApp
             }
         }
     }
+
+     class Client
+    {
+        // סוקטים שאחראים לחיבור של השרת , מקבלים את כתובת האינטרנט של המחשב
+        private   Socket ClientSocket = new Socket
+         (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        private const int PORT = 8080;
+        private string username;
+        private int port;
+        private string lastMsgFromServer;
+        public Client(string username , int port)
+        {
+
+            setUserName(username);
+            setPort(port);
+            // המתודות כאן יהיו אחראיות להתחברות לשרת
+            ConnectToServer();
+           /* RequestLoop();
+            Exit(); */
+        }
+
+        public string getLastMsgFromServer()
+        {
+            return this.lastMsgFromServer;
+        }
+
+        private void setPort(int port)
+        {
+            this.port = port;
+        }
+        public int getPort()
+        {
+            return this.port;
+        }
+        private void setUserName(string name)
+        {
+            this.username = name;
+        }
+        public string getUserName()
+        {
+            return this.username;
+        }
+
+        private void ConnectToServer()
+        {
+            int attempts = 0;
+
+            while (!ClientSocket.Connected)
+            {
+                try
+                {
+                    attempts++;
+                    //      Console.WriteLine("Connection attempt " + attempts);
+                    // Change IPAddress.Loopback to a remote IP to connect to a remote host.
+                    ClientSocket.Connect(IPAddress.Loopback, PORT);
+                }
+                catch (SocketException)
+                {
+                    // Console.Clear();
+                }
+            }
+
+            //  Console.Clear();
+            // Console.WriteLine("Connected");
+        }
+
+        public void RequestLoop(string text)
+        {
+            //   Console.WriteLine(@"<Type ""exit"" to properly disconnect client>");
+                SendRequest(text);
+                func();
+        }
+
+        /// <summary>
+        /// Close socket and exit program.
+        /// </summary>
+        public void Exit()
+        {
+            SendString("exit"); // Tell the server we are exiting
+            ClientSocket.Shutdown(SocketShutdown.Both);
+            ClientSocket.Close();
+            ClientSocket = new Socket // תוספת שלי
+         (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            //Environment.Exit(0);
+        }
+
+        private void SendRequest(string str)
+        {
+  
+            string request = str;
+            SendString(request);
+
+            if (request.ToLower() == "exit")
+            {
+                Exit();
+            }
+        }
+
+        /// <summary>
+        /// Sends a string to the server with ASCII encoding.
+        /// </summary>
+        private void SendString(string text)
+        {
+            byte[] buffer = Encoding.ASCII.GetBytes(text.ToLower());
+            ClientSocket.Send(buffer, 0, buffer.Length, SocketFlags.None);
+        }
+
+        async void func()
+        {
+            string res=string.Empty;
+            while (true)
+            {
+                await Task.Run(async () =>
+                {
+                    res = await ReceiveResponse();
+                });
+            }
+        }
+        async Task<string> ReceiveResponse()
+        {
+            var buffer = new byte[2048];
+            int res = await solveTheProblem(buffer);
+            if (res == 0) return string.Empty;
+            var data = new byte[res];
+            Array.Copy(buffer, data, res);
+            string text = Encoding.ASCII.GetString(data);
+            return text;
+        }
+         private async Task<int> solveTheProblem(byte[] buffer)
+        {
+            return  ClientSocket.Receive(buffer, SocketFlags.None);
+        }
+    }
+    
 }

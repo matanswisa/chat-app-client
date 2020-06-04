@@ -1,6 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\obj\\Debug",
+    "\\obj\\Release"
   ],
   "SelectedNode": "\\ChatApp.sln",
   "PreviewInSolutionExplorer": false
