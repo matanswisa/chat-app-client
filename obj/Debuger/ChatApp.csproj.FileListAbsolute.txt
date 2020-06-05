@@ -1,0 +1,8 @@
+C:\Users\Matan\Desktop\ChatApp\bin\Debuger\ChatApp.exe.config
+C:\Users\Matan\Desktop\ChatApp\bin\Debuger\ChatApp.exe
+C:\Users\Matan\Desktop\ChatApp\obj\Debuger\ChatApp.csprojAssemblyReference.cache
+C:\Users\Matan\Desktop\ChatApp\obj\Debuger\ChatApp.chatForm.resources
+C:\Users\Matan\Desktop\ChatApp\obj\Debuger\ChatApp.Properties.Resources.resources
+C:\Users\Matan\Desktop\ChatApp\obj\Debuger\ChatApp.csproj.GenerateResource.cache
+C:\Users\Matan\Desktop\ChatApp\obj\Debuger\ChatApp.csproj.CoreCompileInputs.cache
+C:\Users\Matan\Desktop\ChatApp\obj\Debuger\ChatApp.exe

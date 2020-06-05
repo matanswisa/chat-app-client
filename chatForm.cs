@@ -20,9 +20,13 @@ namespace ChatApp
         private const int PORT = 8080;
         private string username;
         private int port;
-        private const string clientFolderPath = @"C:\Users\Matan\Desktop\ChatApp\ClientFiles";
+        private string filesFolderLocation;
+        private const string fileNameCmnd = "FILE_NAME:"; // הפעולה שתאפשר לשלוח את הקובץ לשרת
+        private const string fileContentCmnd = "FILE_CONTENT:";
+        private string fileName; // כאן יהיה שם הקובץ
+        private string fileContent; // כאן יהיה תוכן הקובץ
 
-       /// מתודות ממחלקת לקוח ///
+        /// מתודות ממחלקת לקוח ///
         private void setPort(int port)
         {
             this.port = port;
@@ -57,7 +61,7 @@ namespace ChatApp
                     // Console.Clear();
                 }
             }
-            RequestLoop(this.username + "connected to the server");
+            RequestLoop(this.username + " connected to the server");
             //  Console.Clear();
             // Console.WriteLine("Connected");
         }
@@ -92,7 +96,7 @@ namespace ChatApp
         /// </summary>
         private void SendString(string text)
         {
-            byte[] buffer = Encoding.ASCII.GetBytes(text.ToLower());
+            byte[] buffer = Encoding.ASCII.GetBytes(text);
             ClientSocket.Send(buffer, 0, buffer.Length, SocketFlags.None);
         }
 
@@ -101,7 +105,7 @@ namespace ChatApp
             string res;
             while (true)
             {
-                res = string.Empty;
+                res = string.Empty;//error happened here
                 try
                 {
                     await Task.Run(async () =>
@@ -113,13 +117,38 @@ namespace ChatApp
                 catch (Exception)
                 {
                 }
-                if (res != string.Empty)
-                    listMessage.Items.Add(res);
+                if(res != string.Empty && res.Contains(fileNameCmnd))
+                {
+                    fileName = Path.GetFileName(res.Replace(fileNameCmnd, string.Empty));
+                    //NEED TO CREATE THE FILE
+                    filesList.Items.Add(fileName);
+                    CreateFile(filesFolderLocation + fileName);
+
+                }
+                else if(res != string.Empty && this.filesList.Enabled==true)
+                {
+                    try
+                    {
+                      //  fileContent = Path.GetFileName(res.Replace(fileContentCmnd, string.Empty));//here error happened
+                        WriteToFile(filesFolderLocation + fileName, res);
+                    }
+                    catch(Exception ex)
+                    {
+                        MessageBox.Show(ex.ToString(), "Some wired error with the file happened: ");
+                    }
+       
+                }
+                else if (res != string.Empty && this.listMessage.Enabled == true)
+                    listMessage.Items.Add(res); 
+                else if(res != string.Empty && this.filesList.Enabled == true)
+                {
+                    filesList.Items.Add(res);// need only the name of the file to add to the list
+                }
             }
         }
         async Task<string> ReceiveResponse()
         {
-            var buffer = new byte[2048];
+            byte[] buffer = new byte[50000];
             int res = await solveTheProblem(buffer);
             if (res == 0) return string.Empty;
             var data = new byte[res];
@@ -131,6 +160,42 @@ namespace ChatApp
         {
             return  ClientSocket.Receive(buffer, SocketFlags.None);
         }
+
+
+        private void CreateFile(string path)
+        {
+            try
+            {    // Create a new file   
+                //path = path.Replace("\\", @"\");
+                using (FileStream fs = File.Create(path))
+                {
+                    byte[] info = new UTF8Encoding(true).GetBytes("This is some text in the file.");
+                    // Add some information to the file.
+                    fs.Write(info, 0, info.Length);
+                }
+            }
+            catch(Exception)//need to handle io exception
+            {
+                
+            }
+        }
+        private void WriteToFile(string path , string content)
+        {
+            try
+            {
+                using (FileStream fs = File.Create(path))
+                {
+                    byte[] info = new UTF8Encoding(true).GetBytes(content);
+                    // Add some information to the file.
+                    fs.Write(info, 0, info.Length);
+                }
+            }
+            catch (Exception)
+            {
+            };
+            fileName = string.Empty;
+            fileContent = string.Empty;
+        }
         /////////////////////
 
         public chatForm()
@@ -140,7 +205,7 @@ namespace ChatApp
 
         private void ChatForm_Load(object sender, EventArgs e)
         {
-
+           filesFolderLocation = @"C:\Users\Matan\Desktop\ChatApp\files\";
         }
 
         private void LunchBtn_Click(object sender, EventArgs e)
@@ -178,7 +243,7 @@ namespace ChatApp
         }
         private void DisconnectFromChat()
         {
-            cmbPort.SelectedIndex = 0;
+          /*  cmbPort.SelectedIndex = 0;
             connectBtn.Enabled = true;
             btnLogout.Enabled = false;
             btnSendingMsg.Enabled = false;
@@ -187,21 +252,27 @@ namespace ChatApp
             txtbxChat.Enabled = false;
             txbName.Enabled = true;
             txbName.Text = "";
-            Exit();
+            Exit();*/
         }
 
         private void BtnSendingMsg_Click(object sender, EventArgs e)
         {
             /*  byte[] byData = System.Text.Encoding.ASCII.GetBytes(txtbxChat.Text);
               soc.Send(byData); */
-            if (txtbxChat.Text.CompareTo(string.Empty) == 0) // במקרה ואין שם
+            string message = txtbxChat.Text;
+            if (message.CompareTo(string.Empty) == 0) // במקרה ואין שם
             {
                 txbName.Focus();
                 errorProvider1.SetError(txbName, "לא הוכנס תוכן להודעה");
             } else
             {
-             //   listMessage.Items.Add(txbName.Text + " >> " + txtbxChat.Text);
-                RequestLoop(txtbxChat.Text);
+                // in case the user try to send files commandes to the server , 
+                //we will delete 'FILE_NAME:' , 'FILE_CONTENT:' commandes , and send the rest of the string.
+                if (message.Contains(fileNameCmnd))
+                message = message.Replace(fileNameCmnd, string.Empty);
+                else if (message.Contains(fileContentCmnd))
+                message = message.Replace(fileContentCmnd, string.Empty);
+                RequestLoop(message);
             }
 
         }
@@ -218,6 +289,7 @@ namespace ChatApp
 
         private void Button1_Click_1(object sender, EventArgs e)
         {
+            Exit();
             Close();
             Dispose();
         }
@@ -251,158 +323,58 @@ namespace ChatApp
             btnSelectFile.Enabled = false;
         }
 
-        private void BtnSelectFile_Click(object sender, EventArgs e)
+        private async void BtnSelectFile_Click(object sender, EventArgs e)
         {
             // מתודה זו תהיה אחראית על העלאת קבצים ושיתופם לשרת
-            //  FolderBrowserDialog FBD = new FolderBrowserDialog();
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "JSON files (*.json)|*.json|XML files (*.xml)|*.xml"; // file types, that will be allowed to upload
+            dialog.Filter = "Text Documents (*.txt)|*.txt|JSON files (*.json)|*.json|XML files (*.xml)|*.xml"; // file types, that will be allowed to upload
             dialog.Multiselect = false; // allow/deny user to upload more than one file at a time
             if (dialog.ShowDialog() == DialogResult.OK) // if user clicked OK
             {
                 try
                 { 
-                    string path = dialog.FileName;
-                    ClientSocket.SendFile(path);
+                    string path = dialog.FileName; 
+                    SendString(fileNameCmnd + path); // name of the file
+                    await Task.Delay(500);
+                    ClientSocket.SendFile(path); //content of the file 
                 }
-                catch(Exception ex)
+                catch(Exception)
                 {
 
                 }
+            }
+        }
+
+        private void FilesList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            MessageBox.Show("you pressed an item with index " + filesList.SelectedIndex 
+                + " , which it's name , " + filesList.SelectedItem);
+            Windows.Storage.StorageFile file = await savePicker.PickSaveFileAsync();
+            if (file != null)
+            {
+                // Prevent updates to the remote version of the file until
+                // we finish making changes and call CompleteUpdatesAsync.
+                Windows.Storage.CachedFileManager.DeferUpdates(file);
+                // write to file
+                await Windows.Storage.FileIO.WriteTextAsync(file, file.Name);
+                // Let Windows know that we're finished changing the file so
+                // the other app can update the remote version of the file.
+                // Completing updates may require Windows to ask for user input.
+                Windows.Storage.Provider.FileUpdateStatus status =
+                    await Windows.Storage.CachedFileManager.CompleteUpdatesAsync(file);
+                if (status == Windows.Storage.Provider.FileUpdateStatus.Complete)
+                {
+                    this.textBlock.Text = "File " + file.Name + " was saved.";
+                }
+                else
+                {
+                    this.textBlock.Text = "File " + file.Name + " couldn't be saved.";
+                }
+            }
+            else
+            {
+                this.textBlock.Text = "Operation cancelled.";
             }
         }
     }
-
-     /*class Client
-    {
-        // סוקטים שאחראים לחיבור של השרת , מקבלים את כתובת האינטרנט של המחשב
-        private   Socket ClientSocket = new Socket
-         (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        private const int PORT = 8080;
-        private string username;
-        private int port;
-        private string lastMsgFromServer;
-        public Client(string username , int port)
-        {
-
-            setUserName(username);
-            setPort(port);
-            // המתודות כאן יהיו אחראיות להתחברות לשרת
-            ConnectToServer();
-           /* RequestLoop();
-            Exit();
-        }
-
-        public string getLastMsgFromServer()
-        {
-            return this.lastMsgFromServer;
-        }
-
-        private void setPort(int port)
-        {
-            this.port = port;
-        }
-        public int getPort()
-        {
-            return this.port;
-        }
-        private void setUserName(string name)
-        {
-            this.username = name;
-        }
-        public string getUserName()
-        {
-            return this.username;
-        }
-
-        private void ConnectToServer()
-        {
-            int attempts = 0;
-
-            while (!ClientSocket.Connected)
-            {
-                try
-                {
-                    attempts++;
-                    //      Console.WriteLine("Connection attempt " + attempts);
-                    // Change IPAddress.Loopback to a remote IP to connect to a remote host.
-                    ClientSocket.Connect(IPAddress.Loopback, PORT);
-                }
-                catch (SocketException)
-                {
-                    // Console.Clear();
-                }
-            }
-
-            //  Console.Clear();
-            // Console.WriteLine("Connected");
-        }
-
-        public void RequestLoop(string text)
-        {
-            //   Console.WriteLine(@"<Type ""exit"" to properly disconnect client>");
-                SendRequest(text);
-                func();
-        }
-
-        /// <summary>
-        /// Close socket and exit program.
-        /// </summary>
-        public void Exit()
-        {
-            SendString("exit"); // Tell the server we are exiting
-            ClientSocket.Shutdown(SocketShutdown.Both);
-            ClientSocket.Close();
-            ClientSocket = new Socket // תוספת שלי
-         (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            //Environment.Exit(0);
-        }
-
-        private void SendRequest(string str)
-        {
-  
-            string request = str;
-            SendString(request);
-
-            if (request.ToLower() == "exit")
-            {
-                Exit();
-            }
-        }
-
-        /// <summary>
-        /// Sends a string to the server with ASCII encoding.
-        /// </summary>
-        private void SendString(string text)
-        {
-            byte[] buffer = Encoding.ASCII.GetBytes(text.ToLower());
-            ClientSocket.Send(buffer, 0, buffer.Length, SocketFlags.None);
-        }
-
-        async void func()
-        {
-            string res=string.Empty;
-            while (true)
-            {
-                await Task.Run(async () =>
-                {
-                    res = await ReceiveResponse();
-                });
-            }
-        }
-        async Task<string> ReceiveResponse()
-        {
-            var buffer = new byte[2048];
-            int res = await solveTheProblem(buffer);
-            if (res == 0) return string.Empty;
-            var data = new byte[res];
-            Array.Copy(buffer, data, res);
-            string text = Encoding.ASCII.GetString(data);
-            return text;
-        }
-         private async Task<int> solveTheProblem(byte[] buffer)
-        {
-            return  ClientSocket.Receive(buffer, SocketFlags.None);
-        } */ 
-    
 }

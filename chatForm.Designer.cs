@@ -41,8 +41,6 @@
             this.connectBtn = new System.Windows.Forms.Button();
             this.cmbPort = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.onlineUsers = new System.Windows.Forms.Label();
             this.btnLogout = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
@@ -62,7 +60,7 @@
             // filesTitle
             // 
             this.filesTitle.AutoSize = true;
-            this.filesTitle.Location = new System.Drawing.Point(396, 128);
+            this.filesTitle.Location = new System.Drawing.Point(417, 128);
             this.filesTitle.Name = "filesTitle";
             this.filesTitle.Size = new System.Drawing.Size(40, 13);
             this.filesTitle.TabIndex = 3;
@@ -111,23 +109,24 @@
             // 
             this.listMessage.Enabled = false;
             this.listMessage.FormattingEnabled = true;
-            this.listMessage.Location = new System.Drawing.Point(50, 150);
+            this.listMessage.Location = new System.Drawing.Point(51, 150);
             this.listMessage.Name = "listMessage";
-            this.listMessage.Size = new System.Drawing.Size(231, 186);
+            this.listMessage.Size = new System.Drawing.Size(301, 186);
             this.listMessage.TabIndex = 9;
             // 
             // filesList
             // 
             this.filesList.Enabled = false;
             this.filesList.FormattingEnabled = true;
-            this.filesList.Location = new System.Drawing.Point(306, 150);
+            this.filesList.Location = new System.Drawing.Point(383, 150);
             this.filesList.Name = "filesList";
-            this.filesList.Size = new System.Drawing.Size(193, 186);
+            this.filesList.Size = new System.Drawing.Size(109, 186);
             this.filesList.TabIndex = 10;
+            this.filesList.SelectedIndexChanged += new System.EventHandler(this.FilesList_SelectedIndexChanged);
             // 
             // txbName
             // 
-            this.txbName.Location = new System.Drawing.Point(589, 81);
+            this.txbName.Location = new System.Drawing.Point(589, 79);
             this.txbName.Name = "txbName";
             this.txbName.Size = new System.Drawing.Size(146, 20);
             this.txbName.TabIndex = 14;
@@ -149,44 +148,26 @@
             this.cmbPort.Items.AddRange(new object[] {
             "תעבורת הודעות",
             "תעבורת קבצים"});
-            this.cmbPort.Location = new System.Drawing.Point(131, 61);
+            this.cmbPort.Location = new System.Drawing.Point(125, 77);
             this.cmbPort.Name = "cmbPort";
-            this.cmbPort.Size = new System.Drawing.Size(160, 21);
+            this.cmbPort.Size = new System.Drawing.Size(190, 21);
             this.cmbPort.TabIndex = 15;
             this.cmbPort.SelectedIndexChanged += new System.EventHandler(this.CmbPort_SelectedIndexChanged);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(313, 64);
+            this.label1.Location = new System.Drawing.Point(337, 80);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(83, 13);
             this.label1.TabIndex = 16;
             this.label1.Text = "תעבורת נתונים";
             // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(101, 401);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(118, 13);
-            this.label2.TabIndex = 17;
-            this.label2.Text = "מספר אנשים מחוברים";
-            // 
-            // onlineUsers
-            // 
-            this.onlineUsers.AutoSize = true;
-            this.onlineUsers.Location = new System.Drawing.Point(67, 401);
-            this.onlineUsers.Name = "onlineUsers";
-            this.onlineUsers.Size = new System.Drawing.Size(13, 13);
-            this.onlineUsers.TabIndex = 18;
-            this.onlineUsers.Text = "0";
-            // 
             // btnLogout
             // 
             this.btnLogout.Enabled = false;
             this.btnLogout.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.btnLogout.Location = new System.Drawing.Point(306, 424);
+            this.btnLogout.Location = new System.Drawing.Point(12, 426);
             this.btnLogout.Name = "btnLogout";
             this.btnLogout.Size = new System.Drawing.Size(136, 23);
             this.btnLogout.TabIndex = 19;
@@ -210,9 +191,9 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(607, 350);
+            this.button1.Location = new System.Drawing.Point(589, 350);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(141, 23);
+            this.button1.Size = new System.Drawing.Size(159, 23);
             this.button1.TabIndex = 21;
             this.button1.Text = "יציאה מהמערכת";
             this.button1.UseVisualStyleBackColor = true;
@@ -226,8 +207,6 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.btnLogout);
-            this.Controls.Add(this.onlineUsers);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.cmbPort);
             this.Controls.Add(this.txbName);
@@ -264,8 +243,6 @@
         private System.Windows.Forms.Button connectBtn;
         private System.Windows.Forms.ComboBox cmbPort;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label onlineUsers;
         private System.Windows.Forms.Button btnLogout;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ErrorProvider errorProvider1;
