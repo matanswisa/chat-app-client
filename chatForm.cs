@@ -205,7 +205,10 @@ namespace ChatApp
 
         private void ChatForm_Load(object sender, EventArgs e)
         {
-           filesFolderLocation = @"C:\Users\Matan\Desktop\ChatApp\files\";
+             // filesFolderLocation ="./files";
+              filesFolderLocation = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..\\..\\")) + @"files\";
+            //  filesFolderLocation = filesFolderLocation.
+            MessageBox.Show(filesFolderLocation);
         }
 
         private void LunchBtn_Click(object sender, EventArgs e)
@@ -347,34 +350,10 @@ namespace ChatApp
 
         private void FilesList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            MessageBox.Show("you pressed an item with index " + filesList.SelectedIndex 
-                + " , which it's name , " + filesList.SelectedItem);
-            Windows.Storage.StorageFile file = await savePicker.PickSaveFileAsync();
-            if (file != null)
-            {
-                // Prevent updates to the remote version of the file until
-                // we finish making changes and call CompleteUpdatesAsync.
-                Windows.Storage.CachedFileManager.DeferUpdates(file);
-                // write to file
-                await Windows.Storage.FileIO.WriteTextAsync(file, file.Name);
-                // Let Windows know that we're finished changing the file so
-                // the other app can update the remote version of the file.
-                // Completing updates may require Windows to ask for user input.
-                Windows.Storage.Provider.FileUpdateStatus status =
-                    await Windows.Storage.CachedFileManager.CompleteUpdatesAsync(file);
-                if (status == Windows.Storage.Provider.FileUpdateStatus.Complete)
-                {
-                    this.textBlock.Text = "File " + file.Name + " was saved.";
-                }
-                else
-                {
-                    this.textBlock.Text = "File " + file.Name + " couldn't be saved.";
-                }
-            }
-            else
-            {
-                this.textBlock.Text = "Operation cancelled.";
-            }
+            /*   MessageBox.Show("you pressed an item with index " + filesList.SelectedIndex 
+                   + " , which it's name , " + filesList.SelectedItem);
+
+           } */
         }
     }
 }
