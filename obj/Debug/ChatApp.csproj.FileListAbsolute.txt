@@ -18,3 +18,6 @@ C:\Users\Matan\Desktop\ChatApp\obj\Debug\ChatApp.csproj.CoreCompileInputs.cache
 C:\Users\Matan\Desktop\ChatApp\obj\Debug\ChatApp.exe
 C:\Users\Matan\Desktop\ChatApp\obj\Debug\ChatApp.pdb
 C:\Users\Matan\Desktop\ChatApp\obj\Debug\ChatApp.chatForm.resources
+C:\Users\Matan\Desktop\ChatApp\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Matan\Desktop\ChatApp\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Matan\Desktop\ChatApp\obj\Debug\ChatApp.csproj.CopyComplete

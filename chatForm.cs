@@ -10,6 +10,8 @@ using System.Windows.Forms;
 using System.Net.Sockets;
 using System.Net;
 using System.IO;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace ChatApp
 {
@@ -23,8 +25,8 @@ namespace ChatApp
         private string filesFolderLocation;
         private const string fileNameCmnd = "FILE_NAME:"; // הפעולה שתאפשר לשלוח את הקובץ לשרת
         private const string fileContentCmnd = "FILE_CONTENT:";
-        private string fileName; // כאן יהיה שם הקובץ
-        private string fileContent; // כאן יהיה תוכן הקובץ
+        private string fileName; // name of the file
+        private string fileContent; // content of the file
 
         /// מתודות ממחלקת לקוח ///
         private void setPort(int port)
@@ -94,6 +96,7 @@ namespace ChatApp
         /// <summary>
         /// Sends a string to the server with ASCII encoding.
         /// </summary>
+        /// 
         private void SendString(string text)
         {
             byte[] buffer = Encoding.ASCII.GetBytes(text);
@@ -149,14 +152,14 @@ namespace ChatApp
         async Task<string> ReceiveResponse()
         {
             byte[] buffer = new byte[50000];
-            int res = await solveTheProblem(buffer);
+            int res = await ReciveFromServer(buffer);
             if (res == 0) return string.Empty;
             var data = new byte[res];
             Array.Copy(buffer, data, res);
             string text = Encoding.ASCII.GetString(data);
             return text;
         }
-         private async Task<int> solveTheProblem(byte[] buffer) // סנכרון פעולת האזנה , יש צורך לעבוד עליה עוד
+         private async Task<int> ReciveFromServer(byte[] buffer) // סנכרון פעולת האזנה , יש צורך לעבוד עליה עוד
         {
             return  ClientSocket.Receive(buffer, SocketFlags.None);
         }
@@ -165,30 +168,31 @@ namespace ChatApp
         private void CreateFile(string path)
         {
             try
-            {    // Create a new file   
-                //path = path.Replace("\\", @"\");
-                using (FileStream fs = File.Create(path))
-                {
-                    byte[] info = new UTF8Encoding(true).GetBytes("This is some text in the file.");
-                    // Add some information to the file.
-                    fs.Write(info, 0, info.Length);
-                }
+            {    
+                using (FileStream fs = File.Create(path)){};
             }
             catch(Exception)//need to handle io exception
             {
-                
+                MessageBox.Show
             }
         }
         private void WriteToFile(string path , string content)
         {
             try
             {
+                /* this code worked for text file
                 using (FileStream fs = File.Create(path))
                 {
                     byte[] info = new UTF8Encoding(true).GetBytes(content);
                     // Add some information to the file.
                     fs.Write(info, 0, info.Length);
-                }
+                } */
+                //writing to a json file
+
+             //   string json = JsonConvert.SerializeObject(content);
+
+                //write string to file
+                System.IO.File.WriteAllText(path, content);
             }
             catch (Exception)
             {
@@ -205,10 +209,7 @@ namespace ChatApp
 
         private void ChatForm_Load(object sender, EventArgs e)
         {
-             // filesFolderLocation ="./files";
               filesFolderLocation = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..\\..\\")) + @"files\";
-            //  filesFolderLocation = filesFolderLocation.
-            MessageBox.Show(filesFolderLocation);
         }
 
         private void LunchBtn_Click(object sender, EventArgs e)
@@ -336,14 +337,26 @@ namespace ChatApp
             {
                 try
                 { 
-                    string path = dialog.FileName; 
+                    string path = dialog.FileName.ToLower(); 
                     SendString(fileNameCmnd + path); // name of the file
-                    await Task.Delay(500);
-                    ClientSocket.SendFile(path); //content of the file 
-                }
-                catch(Exception)
-                {
+                    await Task.Delay(300);
+                    //sending the content of the file
+                    if (path.Contains(".json"))
+                    {
+                        JObject data = JObject.Parse(File.ReadAllText(path));
+                        SendString(data.ToString()); //content of the file 
 
+                    }
+                    else if (path.Contains(".xml"))
+                    {
+                        var xmlString = File.ReadAllText(path);
+                        SendString(xmlString);
+                    }
+
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Error occuared in opening the file.", "File Error", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
                 }
             }
         }

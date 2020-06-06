@@ -5,3 +5,7 @@ C:\Users\Matan\Desktop\ChatApp\obj\Debuger2\ChatApp.Properties.Resources.resourc
 C:\Users\Matan\Desktop\ChatApp\obj\Debuger2\ChatApp.csproj.GenerateResource.cache
 C:\Users\Matan\Desktop\ChatApp\obj\Debuger2\ChatApp.csproj.CoreCompileInputs.cache
 C:\Users\Matan\Desktop\ChatApp\obj\Debuger2\ChatApp.exe
+C:\Users\Matan\Desktop\ChatApp\bin\Debuger2\Newtonsoft.Json.dll
+C:\Users\Matan\Desktop\ChatApp\bin\Debuger2\Newtonsoft.Json.xml
+C:\Users\Matan\Desktop\ChatApp\obj\Debuger2\ChatApp.csprojAssemblyReference.cache
+C:\Users\Matan\Desktop\ChatApp\obj\Debuger2\ChatApp.csproj.CopyComplete
