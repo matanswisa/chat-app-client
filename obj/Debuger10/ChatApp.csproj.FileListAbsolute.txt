@@ -1,0 +1,10 @@
+C:\Users\Matan\Desktop\ChatApp\bin\Debuger10\ChatApp.exe.config
+C:\Users\Matan\Desktop\ChatApp\bin\Debuger10\ChatApp.exe
+C:\Users\Matan\Desktop\ChatApp\bin\Debuger10\Newtonsoft.Json.dll
+C:\Users\Matan\Desktop\ChatApp\bin\Debuger10\Newtonsoft.Json.xml
+C:\Users\Matan\Desktop\ChatApp\obj\Debuger10\ChatApp.chatForm.resources
+C:\Users\Matan\Desktop\ChatApp\obj\Debuger10\ChatApp.Properties.Resources.resources
+C:\Users\Matan\Desktop\ChatApp\obj\Debuger10\ChatApp.csproj.GenerateResource.cache
+C:\Users\Matan\Desktop\ChatApp\obj\Debuger10\ChatApp.csproj.CoreCompileInputs.cache
+C:\Users\Matan\Desktop\ChatApp\obj\Debuger10\ChatApp.csproj.CopyComplete
+C:\Users\Matan\Desktop\ChatApp\obj\Debuger10\ChatApp.exe

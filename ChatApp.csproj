@@ -32,11 +32,11 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debuger|AnyCPU'">
-    <OutputPath>bin\Debuger\</OutputPath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debuger3|AnyCPU'">
+    <OutputPath>bin\Debuger3\</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debuger2|AnyCPU'">
-    <OutputPath>bin\Debuger2\</OutputPath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debuger10|AnyCPU'">
+    <OutputPath>bin\Debuger10\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
