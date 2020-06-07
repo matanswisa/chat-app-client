@@ -1,0 +1,13 @@
+C:\Users\Matan\Desktop\ChatApp\bin\Release\ChatApp.exe.config
+C:\Users\Matan\Desktop\ChatApp\bin\Release\ChatApp.exe
+C:\Users\Matan\Desktop\ChatApp\bin\Release\ChatApp.pdb
+C:\Users\Matan\Desktop\ChatApp\bin\Release\Newtonsoft.Json.dll
+C:\Users\Matan\Desktop\ChatApp\bin\Release\Newtonsoft.Json.xml
+C:\Users\Matan\Desktop\ChatApp\obj\Release\ChatApp.csprojAssemblyReference.cache
+C:\Users\Matan\Desktop\ChatApp\obj\Release\ChatApp.chatForm.resources
+C:\Users\Matan\Desktop\ChatApp\obj\Release\ChatApp.Properties.Resources.resources
+C:\Users\Matan\Desktop\ChatApp\obj\Release\ChatApp.csproj.GenerateResource.cache
+C:\Users\Matan\Desktop\ChatApp\obj\Release\ChatApp.csproj.CoreCompileInputs.cache
+C:\Users\Matan\Desktop\ChatApp\obj\Release\ChatApp.csproj.CopyComplete
+C:\Users\Matan\Desktop\ChatApp\obj\Release\ChatApp.exe
+C:\Users\Matan\Desktop\ChatApp\obj\Release\ChatApp.pdb

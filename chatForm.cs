@@ -177,7 +177,7 @@ namespace ChatApp
 
         private void ChatForm_Load(object sender, EventArgs e)
         {
-              filesFolderLocation = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..\\..\\")) + @"files\";
+           filesFolderLocation = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..\\..\\")) + @"files\";
         }
 
         private void LunchBtn_Click(object sender, EventArgs e)
@@ -200,10 +200,11 @@ namespace ChatApp
             cmbPort.Text = "תעבורת הודעות";
         }
 
+        /// <summary>
+        /// This method allows the client to connect the chat. 
+        /// </summary>
         private void ConnectToChat()
         {
-            // קוראים לפעולה הזו מתי שמתחברים לצ'אט
-            // מתודה זו אחראית על איפשור לחיצה על הכפתורים והכתיבה בטקסט בוקס
             btnSendingMsg.Enabled = true;
             listMessage.Enabled = true;
             cmbPort.Enabled = true;
@@ -214,6 +215,12 @@ namespace ChatApp
             btnExitFromSystem.Enabled = true;
             ConnectToServer();
         }
+
+        /// <summary>
+        /// Sending the text message to the server.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BtnSendingMsg_Click(object sender, EventArgs e)
         {
             string message = txtbxChat.Text;
@@ -224,7 +231,7 @@ namespace ChatApp
             } else
             {
                 // in case the user try to send files commandes to the server , 
-                //we will delete 'FILE_NAME:' , 'FILE_CONTENT:' commandes , and send the rest of the string.
+                //we will delete 'FILE_NAME:'  command , and send the rest of the string.
                 if (message.Contains(fileNameCmnd))
                 message = message.Replace(fileNameCmnd, string.Empty);
                 else if (message.Contains(fileContentCmnd))
@@ -232,41 +239,23 @@ namespace ChatApp
                 RequestLoop(message);
             }
             txtbxChat.Text = string.Empty; // clean the text in message box
-
         }
-
-  
-
-
-
         private void Button1_Click(object sender, EventArgs e)
         {
         }
-
-
         private void Button1_Click_1(object sender, EventArgs e)
         {
             DisconnectFromChat();
         }
-
-
-
+        /// <summary>
+        /// Disconnecting the client and closing the chat app.
+        /// </summary>
         private void DisconnectFromChat()
         {
             Exit();
-            cmbPort.Enabled = false;
-            cmbPort.Text = string.Empty;
-            txtbxChat.Enabled = false;
-            txtbxChat.Text = string.Empty;
-            btnSendingMsg.Enabled = false;
-            btnExitFromSystem.Enabled = false;
-            cmb_Login_option.Enabled = true;
-            cmb_Login_option.Text = string.Empty;
-            btnSystemConnect.Enabled = true;
-            txb_ip.Text = string.Empty;
-            chat_panel.Visible = false;
+            Close();
+            Dispose();
         }
-
         private void CmbPort_SelectedIndexChanged(object sender, EventArgs e)
         {
             // החלפה בין פורט 8080 הודעות לפורט קבצים 8081
@@ -308,24 +297,28 @@ namespace ChatApp
                 { 
                     string path = dialog.FileName.ToLower(); 
                     SendString(fileNameCmnd + path); // name of the file
+                    MessageBox.Show(fileNameCmnd + path);
                     await Task.Delay(300);
                     //sending the content of the file
                     if (path.Contains(".json"))
                     {
                         JObject data = JObject.Parse(File.ReadAllText(path));
                         SendString(data.ToString()); //content of the file 
+                        MessageBox.Show(data.ToString());
 
                     }
                     else if (path.Contains(".xml"))
                     {
                         var xmlString = File.ReadAllText(path);
                         SendString(xmlString);
+                        MessageBox.Show(xmlString);
                     }
 
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show("Error occuared in opening the file.", "File Error", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+                    MessageBox.Show("You are already sent this file which exist in your 'files' folder.  \n" +
+                        "Please send a different file or make sure you deleted the existing one.", "File Error", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
                 }
             }
         }
@@ -367,7 +360,7 @@ namespace ChatApp
             }
             else
             {
-                txb_ip.Text = GetLocalIPAddress();
+                txb_ip.Text = string.Empty;
                 server_ip = txb_ip.Text;
             }
         }

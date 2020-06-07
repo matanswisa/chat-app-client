@@ -273,7 +273,7 @@
             this.cmb_Login_option.FormattingEnabled = true;
             this.cmb_Login_option.Items.AddRange(new object[] {
             "הרצת הצ\'אט על המחשב עם כתובת הזהה לשרת",
-            "הרצת הצ\'אט במחשב עם כתובת השונה מכתובת השרת"});
+            "הרצת הצ\'אט עם כתובת אינטרנט שונה "});
             this.cmb_Login_option.Location = new System.Drawing.Point(34, 18);
             this.cmb_Login_option.Name = "cmb_Login_option";
             this.cmb_Login_option.Size = new System.Drawing.Size(298, 21);
