@@ -23,7 +23,8 @@ namespace ChatApp
         private string username;
         private string server_ip;
         private string filesFolderLocation;
-        private const string fileNameCmnd = "FILE_NAME:"; // הפעולה שתאפשר לשלוח את הקובץ לשרת
+        private const string ONLY_MESSAGE = "ONLY_MESSAGE:";
+        private const string fileNameCmnd = "FILE_NAME:";
         private const string fileContentCmnd = "FILE_CONTENT:";
         private string fileName; // name of the file
         private string fileContent; // content of the file
@@ -34,14 +35,13 @@ namespace ChatApp
                    if (!ClientSocket.Connected)
                    {
                     ClientSocket.Connect(server_ip, PORT);
+                    RequestLoop(ONLY_MESSAGE+this.username + " joined to server.");
                    }
                 }
                 catch (SocketException)
                 {
                     MessageBox.Show("Error occuared in connecting to the server","Connection Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
                 }
-       
-            RequestLoop(this.username + " joined to server.");
         }
 
         public void RequestLoop(string text)
@@ -49,7 +49,14 @@ namespace ChatApp
                 SendRequest(text);
                 func(); // listening to the server
         }
-
+        private void SendRequest(string str)
+        {
+            SendString(this.username + " : " + str);
+            if (str.ToLower() == "exit")
+            {
+                Exit();
+            }
+        }
         /// <summary>
         /// Close socket and exit program.
         /// </summary>
@@ -58,15 +65,6 @@ namespace ChatApp
             SendString("exit"); // Tell the server we are exiting
             ClientSocket.Shutdown(SocketShutdown.Both);
             ClientSocket.Close();
-        }
-
-        private void SendRequest(string str)
-        {
-            SendString(this.username + " : " + str);
-            if (str.ToLower() == "exit")
-            {
-                Exit();
-            }
         }
         /// <summary>
         /// Sends a string to the server with ASCII encoding.
@@ -103,34 +101,35 @@ namespace ChatApp
                 {
                     fileName = Path.GetFileName(res.Replace(fileNameCmnd, string.Empty));
                     //NEED TO CREATE THE FILE
-                    filesList.Items.Add(fileName);
                     CreateFile(filesFolderLocation + fileName);
-
                 }
-                else if(res != string.Empty && this.filesList.Enabled==true)
+                else if(res != string.Empty && res.Contains(fileContentCmnd))
                 {
                     try
                     {
-                      //  fileContent = Path.GetFileName(res.Replace(fileContentCmnd, string.Empty));//here error happened
+                        res = res.Replace(fileContentCmnd, string.Empty);
                         WriteToFile(filesFolderLocation + fileName, res);
                     }
                     catch(Exception ex)
                     {
                         MessageBox.Show(ex.ToString(), "Some wired error with the file happened: ");
                     }
-       
+                    filesList.Items.Add(fileName);
+                    fileName = string.Empty;
+                    fileContent = string.Empty;
                 }
-                else if (res != string.Empty && this.listMessage.Enabled == true)
-                    listMessage.Items.Add(res); 
-                else if(res != string.Empty && this.filesList.Enabled == true)
+                else if (res != string.Empty && res.Contains(ONLY_MESSAGE))
                 {
-                    filesList.Items.Add(res);// need only the name of the file to add to the list
+                    res = res.Replace(ONLY_MESSAGE, string.Empty);
+                    listMessage.Items.Add(res);
                 }
+     
             }
         }
         async Task<string> ReceiveResponse()
         {
             byte[] buffer = new byte[50000]; //need to think on solution to this 
+    //        byte[] buffer = new byte[50000]; //need to think on solution to this 
             int res = await ReciveFromServer(buffer);
             if (res == 0) return string.Empty;
             var data = new byte[res];
@@ -139,9 +138,9 @@ namespace ChatApp
             return text;
         }
          private async Task<int> ReciveFromServer(byte[] buffer) // סנכרון פעולת האזנה , יש צורך לעבוד עליה עוד
-        {
+         {
             return  ClientSocket.Receive(buffer, SocketFlags.None);
-        }
+         }
 
 
         private void CreateFile(string path)
@@ -165,9 +164,6 @@ namespace ChatApp
             {
                 MessageBox.Show("Error in sending the file , please try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             };
-
-            fileName = string.Empty;
-            fileContent = string.Empty;
         }
         /////////////////////////////////////////////////////
         public chatForm()
@@ -182,18 +178,16 @@ namespace ChatApp
 
         private void LunchBtn_Click(object sender, EventArgs e)
         {
-            // פעולה זו אחראית על ההתחברות לצ'אט ולשרת ובודקת תקינות של קלט השם
             ClientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             string name = txbName.Text;
    
-            if (name.CompareTo(string.Empty)==0) // במקרה ואין שם
+            if (name.CompareTo(string.Empty)==0) 
             {
                 txbName.Focus();
                 errorProvider1.SetError(txbName, "לא הוכנס שם");
             } 
             else
             {
-                // כאן יתאפשר ההתחברות לשרת
                 this.username = name;
                 ConnectToChat();
             }
@@ -227,8 +221,9 @@ namespace ChatApp
             if (message.CompareTo(string.Empty) == 0) // במקרה ואין שם
             {
                 txbName.Focus();
-                errorProvider1.SetError(txbName, "לא הוכנס תוכן להודעה");
-            } else
+                errorProvider2.SetError(txbName, "לא הוכנס תוכן להודעה");
+            }
+            else
             {
                 // in case the user try to send files commandes to the server , 
                 //we will delete 'FILE_NAME:'  command , and send the rest of the string.
@@ -236,7 +231,7 @@ namespace ChatApp
                 message = message.Replace(fileNameCmnd, string.Empty);
                 else if (message.Contains(fileContentCmnd))
                 message = message.Replace(fileContentCmnd, string.Empty);
-                RequestLoop(message);
+                RequestLoop(ONLY_MESSAGE+message);
             }
             txtbxChat.Text = string.Empty; // clean the text in message box
         }
@@ -252,14 +247,19 @@ namespace ChatApp
         /// </summary>
         private void DisconnectFromChat()
         {
-            Exit();
-            Close();
-            Dispose();
+            if (ClientSocket.Connected)
+            {
+                Exit();
+            }
+            else
+            {
+                Close();
+                Dispose();
+            }
         }
         private void CmbPort_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // החלפה בין פורט 8080 הודעות לפורט קבצים 8081
-            if(cmbPort.SelectedIndex==1)
+            if (cmbPort.SelectedIndex == 1)
             {
                 EnableFiles();
             }
@@ -267,6 +267,7 @@ namespace ChatApp
             {
                 EnableMessages();
             }
+
         }
         private void EnableFiles()
         {
@@ -285,33 +286,31 @@ namespace ChatApp
             btnSelectFile.Enabled = false;
         }
 
+
         private async void BtnSelectFile_Click(object sender, EventArgs e)
         {
-            // מתודה זו תהיה אחראית על העלאת קבצים ושיתופם לשרת
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Filter = "JSON files (*.json)|*.json|XML files (*.xml)|*.xml"; // file types, that will be allowed to upload
             dialog.Multiselect = false; // allow/deny user to upload more than one file at a time
             if (dialog.ShowDialog() == DialogResult.OK) // if user clicked OK
             {
                 try
-                { 
+                {
+                    string content;
                     string path = dialog.FileName.ToLower(); 
                     SendString(fileNameCmnd + path); // name of the file
-                    MessageBox.Show(fileNameCmnd + path);
-                    await Task.Delay(300);
+                    MessageBox.Show(path);
+                    await Task.Delay(200);
                     //sending the content of the file
                     if (path.Contains(".json"))
                     {
-                        JObject data = JObject.Parse(File.ReadAllText(path));
-                        SendString(data.ToString()); //content of the file 
-                        MessageBox.Show(data.ToString());
-
+                         content = ReadJSONfile(path);
+                        SendString(fileContentCmnd+content); //content of the file 
                     }
                     else if (path.Contains(".xml"))
                     {
-                        var xmlString = File.ReadAllText(path);
-                        SendString(xmlString);
-                        MessageBox.Show(xmlString);
+                        content = ReadXMLfile(path);
+                        SendString(fileContentCmnd+content);
                     }
 
                 }
@@ -325,14 +324,57 @@ namespace ChatApp
 
         private void FilesList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            /*   MessageBox.Show("you pressed an item with index " + filesList.SelectedIndex 
-                   + " , which it's name , " + filesList.SelectedItem);
+            string fileName = filesList.SelectedItem.ToString().ToLower();
+     /*         MessageBox.Show("you pressed an item with index " + filesList.SelectedIndex 
+                   + " , which it's name , " + fileName); */
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.FileName = fileName;
+            if (saveFileDialog.ShowDialog()==DialogResult.OK)
+            {
+                try
+                {
+                    using (Stream s = File.Open(saveFileDialog.FileName, FileMode.CreateNew))
+                    using (StreamWriter sw = new StreamWriter(s))
+                    {
+                        if (fileName.Contains(".json"))
+                        {
+                            sw.Write(ReadJSONfile(filesFolderLocation + fileName));
+                        }
+                        else if (fileName.Contains(".xml"))
+                        {
+                            sw.Write(ReadXMLfile(filesFolderLocation + fileName));
+                        }
+                    }
+                }
+                catch(IOException ex)
+                {
+                    MessageBox.Show(ex.ToString(), "File Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
 
-           } */
+        /// <summary>
+        /// Reads the content of the json file and returns the content as a string.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        private string ReadJSONfile(string path)
+        {
+            return JObject.Parse(File.ReadAllText(path)).ToString();
+        }
+        /// <summary>
+        /// Reads the content of the xml file and returns the content as a string.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        private string ReadXMLfile(string path)
+        {
+            return File.ReadAllText(path);
         }
 
         private void Button2_Click(object sender, EventArgs e)
         {
+            server_ip = txb_ip.Text;
             cmb_Login_option.Enabled = false;
             btnSystemConnect.Enabled = false;
             chat_panel.Visible = true;
@@ -361,22 +403,9 @@ namespace ChatApp
             else
             {
                 txb_ip.Text = string.Empty;
-                server_ip = txb_ip.Text;
+                txb_ip.Enabled = true;
             }
         }
-        public static string GetLocalIPAddress() // this function returns the local IPv4 address of the host.
-        {
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (var ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return ip.ToString();
-                }
-            }
-            throw new Exception("No network adapters with an IPv4 address in the system!");
-        }
-
         private void Cb_hide_ip_CheckedChanged(object sender, EventArgs e)
         {
             if(cb_hide_ip.Checked)
