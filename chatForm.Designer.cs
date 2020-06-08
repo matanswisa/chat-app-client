@@ -99,7 +99,7 @@
             // btnSelectFile
             // 
             this.btnSelectFile.Enabled = false;
-            this.btnSelectFile.Location = new System.Drawing.Point(555, 114);
+            this.btnSelectFile.Location = new System.Drawing.Point(555, 115);
             this.btnSelectFile.Name = "btnSelectFile";
             this.btnSelectFile.Size = new System.Drawing.Size(159, 23);
             this.btnSelectFile.TabIndex = 7;
