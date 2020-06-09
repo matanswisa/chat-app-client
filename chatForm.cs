@@ -253,8 +253,8 @@ namespace ChatApp
             string message = txtbxChat.Text;
             if (message.CompareTo(string.Empty) == 0) // במקרה ואין שם
             {
-                txbName.Focus();
-                errorProvider2.SetError(txbName, "לא הוכנס תוכן להודעה");
+                txtbxChat.Focus();
+                errorProvider2.SetError(txtbxChat, "לא הוכנס תוכן להודעה");
             }
             else
             {

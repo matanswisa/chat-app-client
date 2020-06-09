@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(chatForm));
             this.chatTitle = new System.Windows.Forms.Label();
             this.filesTitle = new System.Windows.Forms.Label();
             this.sendingMessege = new System.Windows.Forms.Label();
@@ -318,6 +319,7 @@
             this.Controls.Add(this.txb_ip);
             this.Controls.Add(this.chat_panel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "chatForm";
             this.Text = "Chat App";
             this.Load += new System.EventHandler(this.ChatForm_Load);
