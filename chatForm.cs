@@ -281,7 +281,11 @@ namespace ChatApp
         /// </summary>
         private void DisconnectFromChat()
         {
+            if (ClientSocket.Connected) // if the client didn't connect to the server and try to exit it. only connected client can disconnect. 
                 Exit();
+            else
+                MessageBox.Show("You are not connected to the server. \n" +
+                    "you have to be connected in order to logout from the chat.", "Logout Error",MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
                 Dispose();
         }
@@ -417,14 +421,26 @@ namespace ChatApp
         /// <param name="e"></param>
         private void Button2_Click(object sender, EventArgs e)
         {
-            server_ip = txb_ip.Text;
-            cmb_Login_option.Enabled = false;
-            btnSystemConnect.Enabled = false;
-            chat_panel.Visible = true;
-            txbName.Enabled = true;
-            txbName.Text = string.Empty;
-            connectBtn.Enabled = true;
-            txb_ip.Enabled = false;
+            if (txb_ip.Text.Equals(string.Empty) && cmb_Login_option.Text.Equals(string.Empty))
+            {
+                errorProvider3.SetError(txb_ip, "IP addrress not inserted");
+                errorProvider4.SetError(cmb_Login_option, "Option not selected");
+            }
+            else if (cmb_Login_option.Text.Equals(string.Empty))
+                errorProvider4.SetError(cmb_Login_option, "Option not selected");
+            else if(txb_ip.Text.Equals(string.Empty))
+                errorProvider3.SetError(txb_ip, "IP addrress not inserted");
+            else
+            {
+                server_ip = txb_ip.Text;
+                cmb_Login_option.Enabled = false;
+                btnSystemConnect.Enabled = false;
+                chat_panel.Visible = true;
+                txbName.Enabled = true;
+                txbName.Text = string.Empty;
+                connectBtn.Enabled = true;
+                txb_ip.Enabled = false;
+            }
         }
 
         /// <summary>
